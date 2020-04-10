@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>60847013S蘇冠中hw2.1</title>
+    
+    <meta charset="utf-8"> 
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <div id="my_dataviz"></div>
+    <div id="deatail"></div>
+  </head>
+
+  <body>
+    <script type="text/javascript">
+
+      var margin = {top: 10, right: 30, bottom: 20, left: 70},
+            width = 1000 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+      var svg = d3.select("#my_dataviz")
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+      var svg1 = d3.select("#deatail")
+          .append("svg")
+          .attr("width", 500)
+          .attr("height", 500)
+          .append("g")
+
+      d3.csv("census.csv", function(data) {
+
+
+        var subgroups = data.columns.slice(1);
+        console.log(subgroups);
+
+        var groups = d3.map(data, function(d){return(d.State)}).keys()
+        console.log(groups);
+        var x = d3.scaleBand()
+            .domain(groups)
+              .range([0, width])
+              .padding([0.2])
+        svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x).tickSizeOuter(0));
+
+        var y = d3.scaleLinear()
+          .domain([0, 35000000])
+          .range([ height, 0 ]);
+
+        svg.append("g")
+          .call(d3.axisLeft(y));
+
+        var color = d3.scaleOrdinal()
+          .domain(subgroups)
+          .range(['#FF44AA','#FF3333','#FF7744','#FFAA33','#33FF33','#33FFFF','#5555FF'])
+
+        var stackedData = d3.stack()
+          .keys(subgroups)
+          (data)
+
+        console.log(stackedData)
+
+        svg.append("g")
+          .selectAll("g")
+          .data(stackedData)
+          .enter().append("g")
+            .attr("fill", function(d) { return color(d.key); })
+            .selectAll("rect")
+            .data(function(d) { return d; })
+            .enter().append("rect")
+            .attr("x", function(d) { return x(d.data.State); })
+            .attr("y", function(d) { return y(d[1]); })
+            .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+            .attr("width",x.bandwidth())
+
+
+
+        var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = subgroups.reverse();
+        var texts = svg1.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var color1 = ['#FF44AA','#FF3333','#FF7744','#FFAA33','#33FF33','#33FFFF','#5555FF']
+        const revercol = color1.reverse();
+        var rects =  svg1.selectAll("rect")
+          .data(revercol)
+          .enter().append("rect")
+          .attr("x", 160)
+          .attr("y", function(d, i) {
+            return padding + i * (barHeight + padding);
+          })
+          .attr("width", 20)
+          .attr("height", barHeight)
+          .style("fill", function(d,i) { return d});
+
+})
+
+
+        </script>
+  </body>
+</html>
