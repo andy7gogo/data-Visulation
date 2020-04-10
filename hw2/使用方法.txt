@@ -1,0 +1,5 @@
+依老師給的作法
+
+在此資料夾下開啟cmd，輸入 python -m http.server 8000 (我使用port8000)
+
+在瀏覽器輸入http://localhost:8000 即可進入查看
