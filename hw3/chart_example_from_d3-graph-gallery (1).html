@@ -1,0 +1,243 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<style>
+      body {
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        font-size: 14px;
+        color: #333;
+      }
+
+      path {
+        fill: #ddd;
+        stroke: #aaa;
+      }
+
+      path:hover {
+        fill: orange;
+      }
+    </style>
+<div id="deatail"></div>
+<div id="my_dataviz"></div>
+
+<div id="USAmap"></div>
+
+
+
+<body>
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 30, right: 30, bottom: 20, left: 70},
+    width = 1000 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+    var svg1 = d3.select("#deatail")
+          .append("svg")
+          .attr("width", 400)
+          .attr("height", 240)
+          .append("g")
+
+     var svg2 = d3.select("#USAmap")
+          .append("svg")
+          .attr("width", 800)
+          .attr("height", 800)
+          .append("g")
+
+// Parse the Data
+
+
+
+
+d3.csv("census.csv", function(data) {
+
+  // List of subgroups = header of the csv files = soil condition here
+  var subgroups = data.columns.slice(1,8)
+
+  // List of groups = species here = value of the first column called group -> I show them on the X axis
+  var groups = d3.map(data, function(d){return(d.State)}).keys()
+
+  const idList = data.map(item => parseInt(Object.values(item)[1]) +  parseInt(Object.values(item)[2]) +parseInt(Object.values(item)[3])
+            +parseInt(Object.values(item)[4])+parseInt(Object.values(item)[5])+parseInt(Object.values(item)[6])+parseInt(Object.values(item)[7])
+          );
+
+        for(var i=0;i<data.length;i++){
+          data[i].total = idList[i];
+        }
+        console.log(data);
+        data = data.sort(function(a,b){return b.total - a.total})
+        data = data.slice(0,20);
+        // console.log(data);
+
+
+        var groups = d3.map(data, function(d){return(d.State)}).keys()
+
+  // Add X axis
+  var x = d3.scaleBand()
+      .domain(groups)
+      .range([0, width])
+      .padding([0.2])
+  svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x).tickSizeOuter(0));
+
+  // Add Y axis
+  var y = d3.scaleLinear()
+    .domain([0, 35000000])
+    .range([ height, 0 ]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
+
+  // color palette = one color per subgroup
+  var color = d3.scaleOrdinal()
+    .domain(subgroups)
+    .range(['#FF44AA','#FF3333','#FF7744','#FFAA33','#33FF33','#33FFFF','#5555FF'])
+
+  //stack the data? --> stack per subgroup
+  var stackedData = d3.stack()
+    .keys(subgroups)
+    (data)
+
+
+
+
+  // ----------------
+  // Create a tooltip
+  // ----------------
+  var tooltip = d3.select("#my_dataviz")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px")
+
+  // Three function that change the tooltip when user hover / move / leave a cell
+  var mouseover = function(d) {
+    var subgroupName = d3.select(this.parentNode).datum().key;
+    var subgroupValue = d.data[subgroupName];
+    tooltip
+        .html("subgroup: " + subgroupName + "<br>" + "Value: " + subgroupValue)
+        .style("opacity", 1)
+  }
+  var mousemove = function(d) {
+    tooltip
+      .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+      .style("top", (d3.mouse(this)[1]) + "px")
+  }
+  var mouseleave = function(d) {
+    tooltip
+      .style("opacity", 0)
+  }
+
+
+
+
+  // Show the bars
+  svg.append("g")
+    .selectAll("g")
+    // Enter in the stack data = loop key per key = group per group
+    .data(stackedData)
+    .enter().append("g")
+      .attr("fill", function(d) { return color(d.key); })
+      .selectAll("rect")
+      // enter a second time = loop subgroup per subgroup to add all rectangles
+      .data(function(d) { return d; })
+      .enter().append("rect")
+        .attr("x", function(d) { return x(d.data.State); })
+        .attr("y", function(d) { return y(d[1]); })
+        .attr("height", function(d) { return y(d[0]) - y(d[1]); })
+        .attr("width",x.bandwidth())
+        .attr("stroke", "grey")
+      .on("mouseover", mouseover)
+      .on("mousemove", mousemove)
+      .on("mouseleave", mouseleave)
+
+  var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = subgroups.reverse();
+        var texts = svg1.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var color1 = ['#FF44AA','#FF3333','#FF7744','#FFAA33','#33FF33','#33FFFF','#5555FF']
+        const revercol = color1.reverse();
+        var rects =  svg1.selectAll("rect")
+          .data(revercol)
+          .enter().append("rect")
+          .attr("x", 180)
+          .attr("y", function(d, i) {
+            return padding + i * (barHeight + padding);
+          })
+          .attr("width", 20)
+          .attr("height", barHeight)
+          .style("fill", function(d,i) { return d});
+
+
+
+})
+    d3.json("usa_mainland.json", drawUSA);
+
+          function drawUSA(error, states) {
+            var width = 800;
+            var height = 800;
+
+            var projection = d3.geoEquirectangular()
+              .fitExtent([[0,0], [width, height]], states);
+            
+        var geoGenerator = d3.geoPath()
+          .projection(projection);
+
+        var paths = svg2.selectAll('path')
+          .data(states.features)
+          .enter()
+          .append('path')
+          .attr('d', geoGenerator);
+
+        var texts = svg2.selectAll('text')
+          .data(states.features)
+          .enter()
+          .append('text')
+          .attr('text-anchor', 'middle')
+          .attr('alignment-baseline', 'middle')
+          .attr('opacity', 0.5)
+          .text(function(d) {
+            return d.properties.STUSPS10;
+          })
+          .attr('transform', function(d) {
+            var center = geoGenerator.centroid(d);
+            return 'translate (' + center + ')';
+          });
+      }
+
+
+</script>
+</body>
