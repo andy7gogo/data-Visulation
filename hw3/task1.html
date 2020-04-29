@@ -25,9 +25,6 @@
         stroke: #aaa;
       }
 
-      path:hover {
-        fill: red;
-      }
     </style>
 
 
@@ -139,14 +136,36 @@ function update(data){
     .style("padding", "10px")
 
   // Three function that change the tooltip when user hover / move / leave a cell
-  var mouseover = function(d) {
+   var list = ['WY','PA','OH','NM','MD','RI','OR','WI','ND','NV','GA','NY','AR','KS','NE','UT','MS','OK','WV','MI','CO','NJ','DE','MT','WA','CT','CA','KY','MA','FL','ID','MO','AL','SC','NH','SD','IL','TN','IN','IA','AZ','MN','LA','DC','VA','TX','VT','ME','NC'];
+  // Three function that change the tooltip when user hover / move / leave a cell
+    var tmp;
 
+  var mouseover = function(d) {
+    // d3.select(this).style('fill','yellow');
     var subgroupName = d3.select(this.parentNode).datum().key;
+    d3.select('#my_dataviz').selectAll("rect").style("opacity", 0.2)
+    d3.select(this)
+      .style("opacity", 1)
+    var state = d.data.State;
     var subgroupValue = d.data[subgroupName];
 
+    var re = list.indexOf(state);
+    var re2 = re+1;
+    var bang =svg2.select("path:nth-child("+re2+")").style("fill","yellow");
+    
+    tmp = re2;
+
     tooltip
-        .html("subgroup: " + subgroupName + "<br>" + "Value: " + subgroupValue)
+        .html("State name:"+state + "<br>" + subgroupName + "<br>"+
+          "population Value: " + subgroupValue)
         .style("opacity", 1)
+    //d3.select(state)
+   // var bang =svg2.features.properties.STUSPS10.select('MT').style("fill","yellow");
+//從一開始
+    
+
+    // var bang =svg2.selectAll('path');
+    // var bang2 = bang.select()
   }
   var mousemove = function(d) {
     tooltip
@@ -154,11 +173,11 @@ function update(data){
       .style("top", (d3.mouse(this)[1]) + "px")
   }
   var mouseleave = function(d) {
+    d3.selectAll("rect").style("opacity", 0.8)
+    var bang2 =svg2.select("path:nth-child("+tmp+")").style("fill","white");
     tooltip
       .style("opacity", 0)
-
   }
-
 
 
   // Show the bars
@@ -313,7 +332,7 @@ function update(data){
     tmp = re2;
 
     tooltip
-        .html(re + "<br>" + "Value: " + subgroupValue)
+        .html("State name:"+state + "<br>" + "Area Value: " + subgroupValue)
         .style("opacity", 1)
     //d3.select(state)
    // var bang =svg2.features.properties.STUSPS10.select('MT').style("fill","yellow");
