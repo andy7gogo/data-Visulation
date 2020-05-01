@@ -5,6 +5,7 @@
 <!-- Load d3.js -->
 <title>60847013S蘇冠中hw3</title>
 <script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://cdn.rawgit.com/riccardoscalco/textures/master/dist/textures.js" charset="utf-8"></script>
 
 <!-- Create a div where the graph will take place -->
 
@@ -13,6 +14,14 @@
 <button onclick="update1()">population</button>
 <button onclick="update2()">area</button>
 <div id="USAmap"></div>
+
+<button onclick="map1()">color</button>
+<button onclick="map2()">value</button>
+<button onclick="map3()">orientation</button>
+<button onclick="map4()">size</button>
+<button onclick="map5()">shape</button>
+<button onclick="map6()">texture</button>
+<div id="mapdata"></div>
 <style>
       body {
         font-family: "Helvetica Neue", Helvetica, sans-serif;
@@ -35,7 +44,9 @@
 var margin = {top: 30, right: 30, bottom: 20, left: 70},
     width = 1000 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
-
+var statelist;
+var mapvalue;
+var list = ['WY','PA','OH','NM','MD','RI','OR','WI','ND','NV','GA','NY','AR','KS','NE','UT','MS','OK','WV','MI','CO','NJ','DE','MT','WA','CT','CA','KY','MA','FL','ID','MO','AL','SC','NH','SD','IL','TN','IN','IA','AZ','MN','LA','DC','VA','TX','VT','ME','NC'];
 // append the svg object to the body of the page
 var svg = d3.select("#my_dataviz")
   .append("svg")
@@ -54,8 +65,14 @@ var svg = d3.select("#my_dataviz")
      var svg2 = d3.select("#USAmap")
           .append("svg")
           .attr("width", 800)
-          .attr("height", 800)
+          .attr("height", 600)
           .append("g")
+
+     var svg3 = d3.select("#mapdata")
+     	  .append("svg")
+     	  .attr("width",500)
+     	  .attr("height",500)
+     	  .append("g")
 
 // Parse the Data
 
@@ -91,6 +108,8 @@ function update(data){
 
 
         var groups = d3.map(data, function(d){return(d.State)}).keys()
+        statelist = groups;
+        mapvalue = d3.map(data, function(d){return(d.total)}).keys()
 
   // Add X axis
   var x = d3.scaleBand()
@@ -136,7 +155,7 @@ function update(data){
     .style("padding", "10px")
 
   // Three function that change the tooltip when user hover / move / leave a cell
-   var list = ['WY','PA','OH','NM','MD','RI','OR','WI','ND','NV','GA','NY','AR','KS','NE','UT','MS','OK','WV','MI','CO','NJ','DE','MT','WA','CT','CA','KY','MA','FL','ID','MO','AL','SC','NH','SD','IL','TN','IN','IA','AZ','MN','LA','DC','VA','TX','VT','ME','NC'];
+   
   // Three function that change the tooltip when user hover / move / leave a cell
     var tmp;
 
@@ -151,7 +170,9 @@ function update(data){
 
     var re = list.indexOf(state);
     var re2 = re+1;
-    var bang =svg2.select("path:nth-child("+re2+")").style("fill","yellow");
+    svg2.selectAll("path").style("opacity",0.2)
+
+    var bang =svg2.select("path:nth-child("+re2+")").style("opacity",1);
     
     tmp = re2;
 
@@ -174,7 +195,8 @@ function update(data){
   }
   var mouseleave = function(d) {
     d3.selectAll("rect").style("opacity", 0.8)
-    var bang2 =svg2.select("path:nth-child("+tmp+")").style("fill","white");
+    // var bang2 =svg2.select("path:nth-child("+tmp+")").style("fill","white");
+    svg2.selectAll("path").style("opacity",1);
     tooltip
       .style("opacity", 0)
   }
@@ -271,7 +293,8 @@ function update(data){
   // data = data.slice(0,20);
 
   var groups = d3.map(data, function(d){return(d.State)}).keys()
-
+  statelist = groups;
+  mapvalue = d3.map(data, function(d){return(d.area)}).keys()
   // Add X axis
   var x = d3.scaleBand()
       .domain(groups)
@@ -315,11 +338,14 @@ function update(data){
     .style("border-radius", "5px")
     .style("padding", "10px")
 
-    var list = ['WY','PA','OH','NM','MD','RI','OR','WI','ND','NV','GA','NY','AR','KS','NE','UT','MS','OK','WV','MI','CO','NJ','DE','MT','WA','CT','CA','KY','MA','FL','ID','MO','AL','SC','NH','SD','IL','TN','IN','IA','AZ','MN','LA','DC','VA','TX','VT','ME','NC'];
+    
   // Three function that change the tooltip when user hover / move / leave a cell
     var tmp;
-
+    var tcolor;
   var mouseover = function(d) {
+
+  	tcolor = d3.select(this).style();
+  	console.log(tcolor);
   	d3.select(this).style('fill','yellow');
     var subgroupName = d3.select(this.parentNode).datum().key;
     var state =	d.data.State;
@@ -327,7 +353,8 @@ function update(data){
 
     var re = list.indexOf(state);
     var re2 = re+1;
-    var bang =svg2.select("path:nth-child("+re2+")").style("fill","yellow");
+    svg2.selectAll("path").style("opacity",0.2);
+    var bang =svg2.select("path:nth-child("+re2+")").style("opacity",1);
     
     tmp = re2;
 
@@ -348,7 +375,8 @@ function update(data){
       .style("top", (d3.mouse(this)[1]) + "px")
   }
   var mouseleave = function(d) {
-    var bang2 =svg2.select("path:nth-child("+tmp+")").style("fill","white");
+    // var bang2 =svg2.select("path:nth-child("+tmp+")").style("fill","white");
+    svg2.selectAll("path").style("opacity",1);
   	d3.select(this)
 		.style('fill', '#FF44AA');
     tooltip
@@ -436,7 +464,7 @@ function update(data){
           .data(states.features)
           .enter()
           .append('path')
-          //.style("fill","white")
+          .style("fill","#FF44AA")
           .attr('d', geoGenerator);
 
         var texts = svg2.selectAll('text')
@@ -464,7 +492,188 @@ function update(data){
 				// 		.style('fill', 'white');
 				// });
       }
+      update1();
+      function map1(){
 
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+      	var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = ["前10名","11到20名","21到30名","31到40名","41明~"]
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+        var texts = svg3.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var color1 = ['#FFFF33','#BBFF00','#00FFCC','#0044BB','#CC00FF']
+        const revercol = color1;
+        var rects =  svg3.selectAll("rect")
+          .data(revercol)
+          .enter().append("rect")
+          .attr("x", 180)
+          .attr("y", function(d, i) {
+            return padding + i * (barHeight + padding);
+          })
+          .attr("width", 20)
+          .attr("height", barHeight)
+          .style("fill", function(d,i) { return d});
+
+          console.log(mapvalue);
+          var one = statelist.slice(0,10);
+          var two = statelist.slice(10,20);
+          var three = statelist.slice(20,30);
+          var four = statelist.slice(30,40);
+          var five = statelist.slice(40);
+             console.log(one);
+             console.log(two);
+             console.log(three);
+             console.log(four);
+             console.log(five);
+
+          for(var i=0;i<one.length;i++){
+          	var sta = one[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#FFFF33");
+          }
+          for(var i=0;i<two.length;i++){
+          	var sta = two[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#BBFF00");
+          }
+          for(var i=0;i<three.length;i++){
+          	var sta = three[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#00FFCC");
+          }
+          for(var i=0;i<four.length;i++){
+          	var sta = four[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#0044BB");
+          }
+          for(var i=0;i<five.length;i++){
+          	var sta = five[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#CC00FF");
+          }
+
+
+      }
+      function map2(){
+      	svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+      	var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = ["前10名","11到20名","21到30名","31到40名","41明~"]
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+        var texts = svg3.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var color1 = ['#666666','#888888','#AAAAAA','#DDDDDD','#FFFFFF']
+        const revercol = color1;
+        var rects =  svg3.selectAll("rect")
+          .data(revercol)
+          .enter().append("rect")
+          .attr("x", 180)
+          .attr("y", function(d, i) {
+            return padding + i * (barHeight + padding);
+          })
+          .attr("width", 20)
+          .attr("height", barHeight)
+          .style("fill", function(d,i) { return d});
+
+          console.log(mapvalue);
+          var one = statelist.slice(0,10);
+          var two = statelist.slice(10,20);
+          var three = statelist.slice(20,30);
+          var four = statelist.slice(30,40);
+          var five = statelist.slice(40);
+             console.log(one);
+             console.log(two);
+             console.log(three);
+             console.log(four);
+             console.log(five);
+
+          for(var i=0;i<one.length;i++){
+          	var sta = one[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#666666");
+          }
+          for(var i=0;i<two.length;i++){
+          	var sta = two[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#888888");
+          }
+          for(var i=0;i<three.length;i++){
+          	var sta = three[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#AAAAAA");
+          }
+          for(var i=0;i<four.length;i++){
+          	var sta = four[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#DDDDDD");
+          }
+          for(var i=0;i<five.length;i++){
+          	var sta = five[i]
+          	var r = list.indexOf(sta);
+          	var r2 = r+1;
+          	var ba = svg2.select("path:nth-child("+r2+")").style("fill","#FFFFFF");
+          }
+      }
+      function map3(){
+        // svg3.selectAll('text').remove();
+        // svg3.selectAll('rect').remove();
+         var line1 = textures.lines();
+         svg2.selectAll("svg").attr("fill",line1.url());
+      }
+      function map4(){
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+      }
+      function map5(){
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+      }
+      function map6(){
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+      }
 
 </script>
 </body>
