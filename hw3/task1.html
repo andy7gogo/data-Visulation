@@ -446,7 +446,8 @@ function update(data){
 
 }}
 
-
+    var cir ;
+    var sta ;
 
     d3.json("usa_mainland.json", drawUSA);
 
@@ -459,7 +460,8 @@ function update(data){
             
         var geoGenerator = d3.geoPath()
           .projection(projection);
-
+          cir = geoGenerator;
+          sta = states;
         var paths = svg2.selectAll('path')
           .data(states.features)
           .enter()
@@ -482,6 +484,19 @@ function update(data){
             return 'translate (' + center + ')';
           });
 
+        // var circles = svg2.selectAll('circle')
+        //   .data(states.features)
+        //   .enter()
+        //   .append('circle')
+        //   .attr('cx', 'middle')
+        //   .attr('cy', 'middle')
+        //   .attr('opacity', 0.5)
+        //   .attr('r',15)
+        //   .attr('transform', function(d) {
+        //     var center = geoGenerator.centroid(d);
+        //     return 'translate (' + center + ')';
+        //   });
+
         //  paths
 				// .on('mouseover', function(d, i) {
 				// 	d3.select(this)
@@ -495,8 +510,6 @@ function update(data){
       update1();
       function map1(){
 
-        svg3.selectAll('text').remove();
-        svg3.selectAll('rect').remove();
       	var padding = 10;
         var barHeight = 20;
         var fontSize = 20;
@@ -505,6 +518,8 @@ function update(data){
         const reversub = ["前10名","11到20名","21到30名","31到40名","41明~"]
         svg3.selectAll('text').remove();
         svg3.selectAll('rect').remove();
+        svg2.selectAll("circle").remove();
+        svg3.selectAll("circle").remove();
         var texts = svg3.selectAll('text')
           .data(reversub)
           .enter().append("text")
@@ -577,8 +592,8 @@ function update(data){
 
       }
       function map2(){
-      	svg3.selectAll('text').remove();
-        svg3.selectAll('rect').remove();
+        svg2.selectAll("circle").remove();
+        svg3.selectAll("circle").remove();
       	var padding = 10;
         var barHeight = 20;
         var fontSize = 20;
@@ -657,22 +672,280 @@ function update(data){
           }
       }
       function map3(){
-        // svg3.selectAll('text').remove();
-        // svg3.selectAll('rect').remove();
-         var line1 = textures.lines();
-         svg2.selectAll("svg").attr("fill",line1.url());
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+        svg2.selectAll("circle").remove();
+        svg3.selectAll("circle").remove();
+
+
+        var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = ["前10名","11到20名","21到30名","31到40名","41明~"]
+        svg3.selectAll('text').remove();
+        svg3.selectAll('rect').remove();
+        var texts = svg3.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var t1 = textures.lines().orientation();
+        var t2 = textures.lines().orientation("1/8");
+        var t3 = textures.lines().orientation("3/8");
+        var t4 = textures.lines().orientation("5/8");
+        var t5 = textures.lines().orientation("7/8");
+
+        var ori = [t1,t2,t3,t4,t5]
+        svg3.call(ori[0]);
+        svg3.call(ori[1]);
+        svg3.call(ori[2]);
+        svg3.call(ori[3]);
+        svg3.call(ori[4]);
+
+        const orien = ori;
+        var rects =  svg3.selectAll("rect")
+          .data(orien)
+          .enter().append("rect")
+          .attr("x", 180)
+          .attr("y", function(d, i) {
+            return padding + i * (barHeight + padding);
+          })
+          .attr("width", 20)
+          .attr("height", barHeight)
+          .attr("stroke",'black')
+          .style("fill", function(d){return d.url();});
+
+          var one = statelist.slice(0,10);
+          var two = statelist.slice(10,20);
+          var three = statelist.slice(20,30);
+          var four = statelist.slice(30,40);
+          var five = statelist.slice(40);
+
+          for(var i=0;i<one.length;i++){
+            var t = textures.lines().orientation();
+            svg2.call(t);
+            var sta = one[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<two.length;i++){
+            var t = textures.lines().orientation("1/8");
+            svg2.call(t);
+            var sta = two[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<three.length;i++){
+            var t = textures.lines().orientation("3/8");
+            svg2.call(t);
+            var sta = three[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<four.length;i++){
+            var t = textures.lines().orientation("5/8");
+            svg2.call(t);
+            var sta = four[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<five.length;i++){
+            var t = textures.lines().orientation("7/8");
+            svg2.call(t);
+            var sta = five[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
       }
       function map4(){
         svg3.selectAll('text').remove();
         svg3.selectAll('rect').remove();
+        svg2.selectAll("circle").remove();
+        svg3.selectAll("circle").remove();
       }
       function map5(){
         svg3.selectAll('text').remove();
         svg3.selectAll('rect').remove();
+        svg2.selectAll("circle").remove();
+        svg3.selectAll("circle").remove();
+
+        var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = ["前10名","11到20名","21到30名","31到40名","41明~"]
+        var texts = svg3.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var color1 = ['15','12','9','6','3']
+        const revercol = color1;
+        var circles =  svg3.selectAll("circle")
+          .data(revercol)
+          .enter()
+          .append("circle")
+          .attr("cx", 180)
+          .attr("cy", 
+            function(d, i) {
+            return 10+padding + i * (barHeight + padding);
+          }
+          )
+          .attr('opacity', 1)
+          .attr('stroke','black')
+          .attr('r', 
+            function(d,i){
+            return d;
+          }
+          )
+          .style("fill", 'red');
+
+
+          var one = statelist.slice(0,10);
+          var two = statelist.slice(10,20);
+          var three = statelist.slice(20,30);
+          var four = statelist.slice(30,40);
+          var five = statelist.slice(40);
+
+
+
+          var circles = svg2.selectAll('circle')
+              .data(sta.features)
+              // .enter()
+              .append("circle")
+              .attr("r",15)
+              .attr('opacity',0.5)
+              .attr('fill','red')
+              .attr('transform', 
+                function(d) {
+            var center = cir.centroid(d);
+            return 'translate (' + center + ')';
+          });
+
       }
       function map6(){
         svg3.selectAll('text').remove();
         svg3.selectAll('rect').remove();
+        svg2.selectAll("circle").remove();
+        svg3.selectAll("circle").remove();
+
+        var padding = 10;
+        var barHeight = 20;
+        var fontSize = 20;
+
+
+        const reversub = ["前10名","11到20名","21到30名","31到40名","41明~"]
+        var texts = svg3.selectAll('text')
+          .data(reversub)
+          .enter().append("text")
+          .attr('x', 0)
+          .attr('y', function(d, i) {
+            return (i + 1) * (barHeight + padding);
+          })
+          .attr('font-size', fontSize)
+          .text(function(d,i) {
+            return d;
+          });
+
+
+        var t1 = textures.lines().heavier(3);
+        var t2 = textures.lines().heavier(2);
+        var t3 = textures.lines().heavier(1);
+        var t4 = textures.lines().thicker();
+        var t5 = textures.lines().lighter().thicker();
+
+        var ori = [t1,t2,t3,t4,t5]
+        svg3.call(ori[0]);
+        svg3.call(ori[1]);
+        svg3.call(ori[2]);
+        svg3.call(ori[3]);
+        svg3.call(ori[4]);
+
+        const orien = ori;
+        var rects =  svg3.selectAll("rect")
+          .data(orien)
+          .enter().append("rect")
+          .attr("x", 180)
+          .attr("y", function(d, i) {
+            return padding + i * (barHeight + padding);
+          })
+          .attr("width", 20)
+          .attr("height", barHeight)
+          .attr("stroke",'black')
+          .style("fill", function(d){return d.url();});
+
+
+
+          var one = statelist.slice(0,10);
+          var two = statelist.slice(10,20);
+          var three = statelist.slice(20,30);
+          var four = statelist.slice(30,40);
+          var five = statelist.slice(40);
+
+          for(var i=0;i<one.length;i++){
+            var t = textures.lines().heavier(3);
+            svg2.call(t);
+            var sta = one[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<two.length;i++){
+            var t = textures.lines().heavier(2);
+            svg2.call(t);
+            var sta = two[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<three.length;i++){
+            var t = textures.lines().heavier(1);
+            svg2.call(t);
+            var sta = three[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<four.length;i++){
+            var t = textures.lines().thicker();
+            svg2.call(t);
+            var sta = four[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
+          for(var i=0;i<five.length;i++){
+            var t = textures.lines().lighter().thicker();
+            svg2.call(t);
+            var sta = five[i]
+            var r = list.indexOf(sta);
+            var r2 = r+1;
+            var ba = svg2.select("path:nth-child("+r2+")").style("fill",t.url());
+          }
       }
 
 </script>
