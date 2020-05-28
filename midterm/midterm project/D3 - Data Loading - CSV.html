@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>mid</title>
+		<!-- <script type="text/javascript" src="d3/d3.min.js"></script>  -->
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<input name="btn1" type="button"  value="確診統計圖" onclick="javascript:location.href='http://localhost:8000/all_chart.html'" style="width:130px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: #008CBA;"/>
+<input name="btn1" type="button"  value="疫情趨勢圖" onclick="javascript:location.href='http://localhost:8000/trendline.html'" style="width:130px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: rgb(33, 158, 2);"/>
+<input name="btn2" type="button"  value="疫情重災區分布圖" onclick="javascript:location.href='http://localhost:8000/midterm.html'" style="width:190px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: rgb(250, 139, 11);" />
+<input name="btn3" type="button"  value="疫情重災區病歷表" onclick="javascript:location.href='http://localhost:8000/D3%20-%20Data%20Loading%20-%20CSV.html'" style="width:190px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: rgb(186, 0, 0);"/>
+		<br></br>
+		<style>
+			table {
+				text-align: center;
+			}
+			th, td {
+			    border-bottom: 1px solid #ddd;
+			}
+			th {
+			    background-color: #0072E3;
+			    color: white;
+			}
+			tr:hover {background-color: #FFC78E;}
+			tr:nth-child(even) {background-color: #DDDDFF;}
+		</style>
+	</head>
+
+	<body>
+        <script type="text/javascript">
+        	var width = 500;
+        	var height = 200;
+        	var xScale = d3.scaleLinear()
+				.domain([0, 10])
+			    .range([0, width]);
+
+			var yScale = d3.scaleLinear()
+				.domain([0, 10])
+			    .range([height, 0]);
+
+        	d3.csv("DXYArea.csv", drawPoints);
+
+        	function drawPoints(error, points) {
+	        	var svg = d3.select('svg');
+	        
+
+	        	var columnNames = points.columns;
+	        	// Create a table
+				tabulate(columnNames, points);
+
+				function tabulate(columnNames, data) {
+					var table = d3.select('body').append('table');
+					var thead = table.append('thead');
+					var	tbody = table.append('tbody');
+
+					// append the header row
+					thead.append('tr')
+					  .selectAll('th')
+					  .data(columnNames)
+					  .enter()
+					  .append('th')
+					  .text(function (d) { 
+					  	return d; 
+					  });
+
+					// create a row for each object in the data
+					var rows = tbody.selectAll('tr')
+					  .data(data)
+					  .enter()
+					  .append('tr');
+
+					// create a cell in each row for each column
+					var cells = rows.selectAll('td')
+					  .data(function (row) {
+					    return columnNames.map(function (columnName) {
+					      return {
+					      	key: columnName, 
+					      	value: row[columnName]
+					      };
+					    });
+					  })
+					  .enter()
+					  .append('td')
+					  .text(function (d) { 
+					  	return d.value; 
+					  });
+
+				  return table;
+				}
+			}
+
+        </script>
+
+	</body>
+</html>

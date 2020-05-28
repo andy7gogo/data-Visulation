@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+  <title>D3 - Geo - USA States</title>
+  <!-- <script type="text/javascript" src="d3/d3.min.js"></script>  -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://cdn.rawgit.com/riccardoscalco/textures/master/dist/textures.js" charset="utf-8"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+<!-- Create a div where the graph will take place -->
+
+<input name="btn1" type="button"  value="確診統計圖" onclick="javascript:location.href='http://localhost:8000/all_chart.html'" style="width:130px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: #008CBA;"/>
+<input name="btn1" type="button"  value="疫情趨勢圖" onclick="javascript:location.href='http://localhost:8000/trendline.html'" style="width:130px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: rgb(33, 158, 2);"/>
+<input name="btn2" type="button"  value="疫情重災區分布圖" onclick="javascript:location.href='http://localhost:8000/midterm.html'" style="width:190px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: rgb(250, 139, 11);" />
+<input name="btn3" type="button"  value="疫情重災區病歷表" onclick="javascript:location.href='http://localhost:8000/D3%20-%20Data%20Loading%20-%20CSV.html'" style="width:190px;height:40px;font-size:20px;color:rgb(247, 247, 247);background-color: rgb(186, 0, 0);"/>
+<div id="my_dataviz"></div>
+<!-- Add 2 buttons -->
+<!-- onclick="function update()" -->
+<input name="popu_btn" type="button" value="Confirmed" onclick="update()" style="width:130px;height:40px;font-size:20px;color:black;background-color: rgb(186, 142, 228);" />
+<input name="area_btn" type="button" value="Dead" onclick="update1()" style="width:130px;height:40px;font-size:20px;color:black;background-color: rgb(247, 191, 128);" />
+<input name="cured_btn" type="button" value="Cured" onclick="update3()" style="width:130px;height:40px;font-size:20px;color:black;background-color: rgb(100, 189, 224);" />
+<script>
+  // Initialize plot
+  //update('var1')
+  // set the dimensions and margins of the graph
+  var margin = { top: 60, right: 100, bottom: 100, left: 200 },
+    width = 960,
+    height = 500;
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#my_dataviz")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform",
+      "translate(" + margin.left + "," + margin.top + ")");
+
+  //var key = legend({color, title: "Age (years)"})
+
+  // Parse the Data
+  var x = d3.scaleBand()
+    .rangeRound([0, width])
+    .paddingInner(0.1)
+    .align(0.1)
+    .padding([0.2]);
+
+  var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+  var z = d3.scaleOrdinal()
+    .range(['#D98880', '#F8C471', '#F4D03F', '#58D68D', '#85C1E9', '#2980B9', '#BB8FCE']);
+
+  var xAxis = d3.axisBottom(x)
+
+  function update(selectedVar) {
+    svg.selectAll("svg").remove(); //每進來function一次 就清空svg原有的圖
+    svg.selectAll("g").remove();
+    svg.selectAll("rect").remove();
+    update2('var');
+  }
+
+ function update2(selectedVar) {
+    svg.selectAll("svg").remove();
+    svg.selectAll("g").remove();
+    d3.csv("DXYArea.csv", function (data) {
+      // X axis
+      var x = d3.scaleBand()
+        .domain(data.map(function (d) { return d.countryEnglishName; }))
+        .rangeRound([0, width])
+        .paddingInner(0.1)
+        .align(0.1)
+        .padding([0.2]);
+
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+      // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([0, 750000])
+        .range([height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      // ----------------
+      // Create a tooltip
+      // ----------------
+      d3.select("#my_dataviz").select('div').remove();//消去生成的
+
+      var tooltip = d3.select("#my_dataviz")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+
+      var mouseover = function (d) {
+        var state = d.countryEnglishName
+        // var subgroupName = d3.select(this.parentNode).datum().key;
+        var subgroupValue = d.province_confirmedCount;
+        d3.selectAll("rect").style("opacity", 0.2);
+        d3.select(this).style("opacity", 1);
+        tooltip
+          .html("Country Name: " + state + "<br>" + "Confirmed Count: " + subgroupValue)
+          .style("opacity", 1)
+      }
+      var mousemove = function (d) {
+        tooltip
+          .style("left", (d3.mouse(this)[0] + 90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+          .style("top", (d3.mouse(this)[1]) + "px")
+      }
+      var mouseleave = function (d) {
+        svg1.selectAll("path").style("opacity", 1);
+        tooltip
+          .style("opacity", 0)
+        d3.selectAll("rect")
+          .style("opacity", 0.8)
+      }
+
+      // Bars
+      svg.append("g")
+        .selectAll("g")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return x(d.countryEnglishName); })
+        .attr("y", function (d) { return y(d.province_confirmedCount); })
+        .attr("width", x.bandwidth())
+        .attr("height", function (d) { return height - y(d.province_confirmedCount); })
+        .attr("fill", "#69b3a2")
+        .attr("class", function (d) { return "rect " + d.key })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+    })
+  }
+  update2('var')
+  // ----------------
+  // Area bar chart
+  // ----------------  
+
+  function update1(selectedVar) {
+    svg.selectAll("svg").remove();
+    svg.selectAll("g").remove();
+    d3.csv("DXYArea.csv", function (data) {
+      data.sort(function(a, b) { return b.total - a.total; });
+      // X axis
+      var x = d3.scaleBand()
+        .domain(data.map(function (d) { return d.countryEnglishName; }))
+        .rangeRound([0, width])
+        .paddingInner(0.1)
+        .align(0.1)
+        .padding([0.2]);
+
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+      // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([0, 40000])
+        .range([height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      // ----------------
+      // Create a tooltip
+      // ----------------
+      d3.select("#my_dataviz").select('div').remove();//消去生成的
+
+      var tooltip = d3.select("#my_dataviz")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+
+      var mouseover = function (d) {
+        var state = d.countryEnglishName
+        // var subgroupName = d3.select(this.parentNode).datum().key;
+        var subgroupValue = d.province_deadCount;
+        d3.selectAll("rect").style("opacity", 0.2);
+        d3.select(this).style("opacity", 1);
+      
+        tooltip
+          .html("Country Name: " + state + "<br>" + "Dead Count: " + subgroupValue)
+          .style("opacity", 1)
+      }
+      var mousemove = function (d) {
+        tooltip
+          .style("left", (d3.mouse(this)[0] + 90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+          .style("top", (d3.mouse(this)[1]) + "px")
+      }
+      var mouseleave = function (d) {
+        svg1.selectAll("path").style("opacity", 1);
+        tooltip
+          .style("opacity", 0)
+        d3.selectAll("rect")
+          .style("opacity", 0.8)
+      }
+
+      // Bars
+      svg.append("g")
+        .selectAll("g")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return x(d.countryEnglishName); })
+        .attr("y", function (d) { return y(d.province_deadCount); })
+        .attr("width", x.bandwidth())
+        .attr("height", function (d) { return height - y(d.province_deadCount); })
+        .attr("fill", "#69b3a2")
+        .attr("class", function (d) { return "rect " + d.key })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+    })
+  }
+  
+  function update3(selectedVar) {
+    svg.selectAll("svg").remove();
+    svg.selectAll("g").remove();
+    d3.csv("DXYArea.csv", function (data) {
+      data.sort(function(a, b) { return b.total - a.total; });
+      // X axis
+      var x = d3.scaleBand()
+        .domain(data.map(function (d) { return d.countryEnglishName; }))
+        .rangeRound([0, width])
+        .paddingInner(0.1)
+        .align(0.1)
+        .padding([0.2]);
+
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x))
+        .selectAll("text")
+        .attr("transform", "translate(-10,0)rotate(-45)")
+        .style("text-anchor", "end");
+
+      // Add Y axis
+      var y = d3.scaleLinear()
+        .domain([0, 88000])
+        .range([height, 0]);
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      // ----------------
+      // Create a tooltip
+      // ----------------
+      d3.select("#my_dataviz").select('div').remove();//消去生成的
+
+      var tooltip = d3.select("#my_dataviz")
+        .append("div")
+        .style("opacity", 0)
+        .attr("class", "tooltip")
+        .style("background-color", "white")
+        .style("border", "solid")
+        .style("border-width", "1px")
+        .style("border-radius", "5px")
+        .style("padding", "10px")
+
+      var mouseover = function (d) {
+        var state = d.countryEnglishName
+        // var subgroupName = d3.select(this.parentNode).datum().key;
+        var subgroupValue = d.province_curedCount;
+        d3.selectAll("rect").style("opacity", 0.2);
+        d3.select(this).style("opacity", 1);
+      
+        tooltip
+          .html("Country Name: " + state + "<br>" + "Cured Count: " + subgroupValue)
+          .style("opacity", 1)
+      }
+      var mousemove = function (d) {
+        tooltip
+          .style("left", (d3.mouse(this)[0] + 90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+          .style("top", (d3.mouse(this)[1]) + "px")
+      }
+      var mouseleave = function (d) {
+        svg1.selectAll("path").style("opacity", 1);
+        tooltip
+          .style("opacity", 0)
+        d3.selectAll("rect")
+          .style("opacity", 0.8)
+      }
+
+      // Bars
+      svg.append("g")
+        .selectAll("g")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", function (d) { return x(d.countryEnglishName); })
+        .attr("y", function (d) { return y(d.province_curedCount); })
+        .attr("width", x.bandwidth())
+        .attr("height", function (d) { return height - y(d.province_curedCount); })
+        .attr("fill", "#69b3a2")
+        .attr("class", function (d) { return "rect " + d.key })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+    })
+  }
+</script>
