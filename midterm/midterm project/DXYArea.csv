@@ -1,0 +1,23 @@
+continentEnglishName,countryEnglishName,provinceEnglishName,province_zipCode,province_confirmedCount,province_suspectedCount,province_curedCount,province_deadCount
+North America,United States of America,United States of America,971002,735287,0,66819,39090
+Europe,Spain,Spain,965015,191726,0,74662,20043
+Europe,Italy,Italy,965008,175925,0,44927,23227
+Europe,Germany,Germany,963003,139897,0,88000,4294
+Europe,United Kingdom,United Kingdom,961007,114217,0,344,15464
+Europe,France,France,961002,111821,0,35983,19323
+Asia,China,China,951001,84225,0,77870,4642
+Asia,Turkey,Turkey,955018,82329,0,10453,1890
+Asia,Iran,Iran,955007,80868,0,55987,5031
+Europe,Belgium,Belgium,961001,37183,0,8348,5453
+South America,Brazil,Brazil,973003,36925,0,14026,2372
+Europe,Russia,Russia,964006,36793,0,3057,313
+North America,Canada,Canada,971001,33383,0,9729,1470
+Europe,Netherlands,Netherlands,961006,31589,0,291,3601
+Europe,Switzerland,Switzerland,963008,27201,0,17100,1368
+Europe,Portugal,Portugal,965010,19685,0,610,687
+Asia,India,India,953003,14793,0,2015,488
+Europe,Ireland,Ireland,961003,14758,0,62,571
+Europe,Austria,Austria,963001,14662,0,10214,443
+South America,Peru,Peru,973008,14420,0,6684,348
+Europe,Sweden,Sweden,962005,13967,0,17,1546
+Asia,Israel,Israel,955009,13362,0,3456,171
