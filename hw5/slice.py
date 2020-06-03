@@ -79,7 +79,7 @@ xyColors.Update()
 xy = vtk.vtkImageActor()
 xy.GetMapper().SetInputConnection(xyColors.GetOutputPort())
 ######### TODO: fill up the parameter in the following line to slice the plance at xy plane #####
-xy.SetDisplayExtent("slicing") 
+xy.SetDisplayExtent(0,299,0,299,150,299) 
 
 # It is convenient to create an initial view of the data. The
 # FocalPoint and Position form a vector direction. Later on
