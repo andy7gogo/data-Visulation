@@ -5,7 +5,11 @@
 pv_insitu檔要放在同個資料夾內
 因為太大我就沒包在一起了
 
-有問題可以問我
+參考
+老師的sample code
+http://vtk.1045678.n5.nabble.com/Volume-rendering-cannot-make-the-image-semi-transparecy-td5749205.html
+https://vtk.org/Wiki/VTK/Examples/Python/Widgets/ScalarBarWidget
+https://vtk.org/Wiki/VTK/Examples/Cxx/Visualization/ScalarBarActor
 
 email:
 deathkabuto@gmail.com
